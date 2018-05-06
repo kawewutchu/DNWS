@@ -63,13 +63,7 @@ namespace DNWS
             responseList.Add(new StatusResponse(entryKey, int.Parse(client.GetValue(entryKey))));
           }
         }
-        // List<StatusResponse> responseList = new List<StatusResponse>();
-        // // Fill in  response model list
-        // foreach (KeyValuePair<String, int> entry in statDictionary)
-        // {
-        //   responseList.Add(new StatusResponse(entry.Key, entry.Value));
-        // }
-        // Set response status and type
+      
         response = new HTTPResponse(200);
         response.Type = "application/json";
         // Convert response model into json string, then byte array;
