@@ -8,7 +8,7 @@
         {
             "Path" : "stat",
             "Class" : "DNWS.StatPlugin",
-            "Preprocessing" : "true",
+            "Preprocessing" : "false",
             "Postprocessing" : "false" ,
             "Singleton" : "false"
         },

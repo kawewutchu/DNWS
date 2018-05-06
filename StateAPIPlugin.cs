@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using ServiceStack.Redis;
 
 namespace DNWS
 {
@@ -54,11 +55,20 @@ namespace DNWS
         HTTPResponse response = null;
         // Create new list of response model ,this depend on output format;
         List<StatusResponse> responseList = new List<StatusResponse>();
-        // Fill in  response model list
-        foreach (KeyValuePair<String, int> entry in statDictionary)
+        using (var client = redisManager.GetClient()) 
         {
-          responseList.Add(new StatusResponse(entry.Key, entry.Value));
+          List<String> entryKeys = client.GetAllKeys();
+          foreach (String entryKey in entryKeys)
+          {
+            responseList.Add(new StatusResponse(entryKey, int.Parse(client.GetValue(entryKey))));
+          }
         }
+        // List<StatusResponse> responseList = new List<StatusResponse>();
+        // // Fill in  response model list
+        // foreach (KeyValuePair<String, int> entry in statDictionary)
+        // {
+        //   responseList.Add(new StatusResponse(entry.Key, entry.Value));
+        // }
         // Set response status and type
         response = new HTTPResponse(200);
         response.Type = "application/json";

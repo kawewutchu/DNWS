@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  dwwns:
+    image: dnws:docker
+    deploy:
+      replicas: 5
+    ports:
+      - "8080:8080"
+    networks:
+      - dockernet
+  redis:
+    image: redis
+    networks:
+      - dockernet
+
+networks:
+  dockernet:

@@ -1,40 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ServiceStack.Redis;
 
 namespace DNWS
 {
   class StatPlugin : IPlugin
   {
-    protected static Dictionary<String, int> statDictionary = null;
+    protected static RedisManagerPool redisManager = null;
     public StatPlugin()
     {
-      if (statDictionary == null)
-      {
-        statDictionary = new Dictionary<String, int>();
-
-      }
+        redisManager =  new RedisManagerPool("redis:6379");
     }
 
     public void PreProcessing(HTTPRequest request)
     {
-      if (statDictionary.ContainsKey(request.Url))
-      {
-        statDictionary[request.Url] = (int)statDictionary[request.Url] + 1;
-      }
-      else
-      {
-        statDictionary[request.Url] = 1;
-      }
+       using (var client = redisManager.GetClient()) 
+       {
+           client.IncrementValue(request.Url);
+       }
     }
     public virtual HTTPResponse GetResponse(HTTPRequest request)
     {
       HTTPResponse response = null;
       StringBuilder sb = new StringBuilder();
       sb.Append("<html><body><h1>Stat:</h1>");
-      foreach (KeyValuePair<String, int> entry in statDictionary)
-      {
-        sb.Append(entry.Key + ": " + entry.Value.ToString() + "<br />");
+      using (var client = redisManager.GetClient()) {
+        List<String> entryKeys = client.GetAllKeys();
+        foreach (String entryKey in entryKeys)
+        {
+          sb.Append(entryKey + ": " + client.GetValue(entryKey) + "<br />");
+        }
       }
       sb.Append("</body></html>");
       response = new HTTPResponse(200);
